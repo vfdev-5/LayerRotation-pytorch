@@ -1,0 +1,16 @@
+name: layer_rotation_env
+channels:
+  - defaults
+  - pytorch
+dependencies:
+  - python=3.7
+  - numpy
+  - pytorch  
+  - torchvision
+  - pip
+  - pip:
+    - mlflow
+    - albumentations
+    - tqdm
+    - tensorboardX
+    - git+https://github.com/pytorch/ignite.git
