@@ -8,7 +8,6 @@
 import argparse
 import traceback
 from pathlib import Path
-import tempfile
 
 import torch
 import torch.nn as nn
@@ -80,7 +79,7 @@ def run(output_path, config):
 
     trainer = Engine(process_function)
 
-    trainer.add_event_handler(Events.ITERATION_COMPLETED, scheduler)
+    trainer.add_event_handler(Events.ITERATION_STARTED, scheduler)
 
     RunningAverage(output_transform=lambda x: x, epoch_bound=False).attach(trainer, 'batchloss')
 
@@ -90,7 +89,7 @@ def run(output_path, config):
 
     tb_logger = TensorboardLogger(log_dir=output_path)
     tb_logger.attach(trainer,
-                     log_handler=tbOutputHandler(tag="train", metric_names=['batchloss', ]),
+                     log_handler=tbOutputHandler(tag="train", metric_names='all'),
                      event_name=Events.ITERATION_COMPLETED)
     tb_logger.attach(trainer,
                      log_handler=tbOptimizerParamsHandler(optimizer, param_name="lr"),
@@ -112,18 +111,18 @@ def run(output_path, config):
             train_evaluator.run(train_loader)
             evaluator.run(test_loader)
 
-    trainer.add_event_handler(Events.EPOCH_STARTED, run_validation, val_interval=2)
+    trainer.add_event_handler(Events.EPOCH_COMPLETED, run_validation, val_interval=2)
     trainer.add_event_handler(Events.COMPLETED, run_validation, val_interval=1)
 
     tb_logger.attach(train_evaluator,
                      log_handler=tbOutputHandler(tag="train",
-                                                 metric_names=list(metrics.keys()),
+                                                 metric_names='all',
                                                  another_engine=trainer),
                      event_name=Events.COMPLETED)
 
     tb_logger.attach(evaluator,
                      log_handler=tbOutputHandler(tag="test",
-                                                 metric_names=list(metrics.keys()),
+                                                 metric_names='all',
                                                  another_engine=trainer),
                      event_name=Events.COMPLETED)
 
@@ -143,6 +142,7 @@ def run(output_path, config):
     evaluator.add_event_handler(Events.COMPLETED, mlflow_val_metrics_logging, "test")
 
     trainer.run(train_loader, max_epochs=config['num_epochs'])
+    tb_logger.close()
 
 
 if __name__ == "__main__":
@@ -210,14 +210,13 @@ if __name__ == "__main__":
     # dump all python files to reproduce the run
     mlflow.log_artifacts(Path(__file__).parent.as_posix())
 
-    with tempfile.TemporaryDirectory() as tmpdirname:                        
-        try:
-            run(tmpdirname, config)
-        except Exception as e:
-            traceback.print_exc()
-            mlflow.log_artifacts(tmpdirname)
-            mlflow.log_param("run status", "FAILED")
-            exit(1)
+    # Assume artifact uri is a filesystem
+    output_path = mlflow.get_artifact_uri()
+    try:
+        run(output_path, config)
+    except Exception as e:
+        traceback.print_exc()
+        mlflow.log_param("run status", "FAILED")
+        exit(1)
 
-        mlflow.log_artifacts(tmpdirname)
-        mlflow.log_param("run status", "OK")
+    mlflow.log_param("run status", "OK")

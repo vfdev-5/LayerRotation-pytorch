@@ -10,7 +10,6 @@ dependencies:
   - pip
   - pip:
     - mlflow
-    - albumentations
     - tqdm
     - tensorboardX
     - git+https://github.com/pytorch/ignite.git

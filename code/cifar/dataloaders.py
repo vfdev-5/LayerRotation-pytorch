@@ -14,12 +14,12 @@ def get_train_test_loaders(dataset_name, path, batch_size, num_workers):
         RandomCrop(32),
         RandomHorizontalFlip(),
         ToTensor(),
-        Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
+        Normalize((0.5, 0.5, 0.5), (0.25, 0.25, 0.25)),
     ])
 
     test_transform = Compose([
         ToTensor(),
-        Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
+        Normalize((0.5, 0.5, 0.5), (0.25, 0.25, 0.25)),
     ])
 
     train_ds = fn(root=path, train=True, transform=train_transform, download=True)

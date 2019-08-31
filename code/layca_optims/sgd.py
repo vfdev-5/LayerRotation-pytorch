@@ -48,7 +48,7 @@ class _BaseLaycaSGD(SGD):
         return loss
 
 
-class MinimalLaycaSGD(SGD):
+class MinimalLaycaSGD(_BaseLaycaSGD):
     """
     Only step 2 and 3 from Algorithm 2 (page 17)
     """
@@ -61,7 +61,7 @@ class MinimalLaycaSGD(SGD):
         # 3 - update
         p.data.add_(-lr, d_p)
     
-class LaycaSGD(SGD):
+class LaycaSGD(_BaseLaycaSGD):
     """
     All operations from Algorithm 2 (page 17)
     """

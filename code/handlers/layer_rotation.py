@@ -42,7 +42,7 @@ class LayerRotationStatsHandler:
     def __call__(self, engine, logger, event_name):
 
         if not isinstance(logger, TensorboardLogger):
-            raise RuntimeError("Handler 'WeightsScalarHandler' works only with TensorboardLogger")
+            raise RuntimeError("Handler 'LayerRotationStatsHandler' works only with TensorboardLogger")
 
         global_step = engine.state.get_event_attrib_value(event_name)
         

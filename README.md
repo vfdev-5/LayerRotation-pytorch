@@ -8,13 +8,12 @@ Based on ["Layer rotation: a surprisingly powerful indicator of generalization i
 - LAYCA optimizers: 
   - [SGD](code/layca_optims/sgd.py)
 
-**In my experiments, I didn't see any improvements of using LAYCA SGD optimizer. Use this code with caution!**
 
 ## Requirements
 
-All experiments are run using [`pytorch-ignite`](https://github.com/pytorch/ignite.git) and [`mlflow`](https://github.com/mlflow/mlflow), please install the latest versions of these libraries
+All experiments are run [`mlflow`](https://github.com/mlflow/mlflow), please install the latest versions of the library
 ```
-pip install --upgrade https://github.com/pytorch/ignite.git mlflow
+pip install --upgrade mlflow
 ```
 
 ## Experiments
